@@ -23,4 +23,35 @@ public class JobApplicationService {
     public JobApplication createApplication(JobApplication application) {
         return repository.save(application);
     }
+
+    public JobApplication getApplicationById(Integer id) {
+        return repository.findById(id).orElse(null);
+    }
+
+    public JobApplication updateApplication(
+        Integer id,
+        JobApplication updatedApplication) {
+            
+            JobApplication existingApplication =
+                repository.findById(id).orElse(null);
+
+            if (existingApplication == null) {
+                return null;
+            }
+
+            existingApplication.setCompany(updatedApplication.getCompany());
+            existingApplication.setPosition(updatedApplication.getPosition());
+            existingApplication.setStatus(updatedApplication.getStatus());
+
+            return repository.save(existingApplication);
+        }
+
+    public boolean deleteApplication(Integer id) {
+        if (!repository.existsById(id)) {
+            return false;
+        }
+
+        repository.deleteById(id);
+        return true;
+    }
 }
