@@ -8,11 +8,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import com.austin.jobtracker.model.JobApplication;
 import com.austin.jobtracker.service.JobApplicationService;
 
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.http.ResponseEntity;
 
 @RestController
 public class ApplicationController {
@@ -29,26 +32,46 @@ public class ApplicationController {
     }
 
     @PostMapping("/applications")
-    public JobApplication createApplication(@RequestBody JobApplication application) {
-        return service.createApplication(application);
+    public ResponseEntity<JobApplication> createApplication(@Valid @RequestBody JobApplication application) {
+        
+        JobApplication created = service.createApplication(application);
+        return ResponseEntity.status(201).body(created);
     }
 
     @GetMapping ("/applications/{id}")
-    public JobApplication getApplicationById(
+    public ResponseEntity<JobApplication> getApplicationById(
         @PathVariable Integer id) {
-            return service.getApplicationById(id);
+
+        JobApplication application = service.getApplicationById(id);
+
+        if (application == null) {
+            return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.ok(application);
+    }
 
     @PutMapping("/applications/{id}")
-        public JobApplication updateApplication(
+        public ResponseEntity<JobApplication> updateApplication(
             @PathVariable Integer id,
             @RequestBody JobApplication application) {
 
-                return service.updateApplication(id, application);
-            }
+        JobApplication updated = service.updateApplication(id, application);
+
+        if (updated == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(updated);
+    }
 
     @DeleteMapping("/applications/{id}")
-    public boolean deleteApplication(@PathVariable Integer id) {
-        return service.deleteApplication(id);
+    public ResponseEntity<Void> deleteApplication(@PathVariable Integer id) {
+        boolean deleted = service.deleteApplication(id);
+
+        if (!deleted) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.noContent().build();
     }
 }
