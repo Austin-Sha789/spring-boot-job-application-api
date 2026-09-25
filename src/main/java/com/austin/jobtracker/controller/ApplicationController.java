@@ -53,7 +53,7 @@ public class ApplicationController {
     @PutMapping("/applications/{id}")
         public ResponseEntity<JobApplication> updateApplication(
             @PathVariable Integer id,
-            @RequestBody JobApplication application) {
+            @Valid @RequestBody JobApplication application) {
 
         JobApplication updated = service.updateApplication(id, application);
 

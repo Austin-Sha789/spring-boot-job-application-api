@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 
 import com.austin.jobtracker.model.JobApplication;
@@ -30,6 +31,11 @@ class JobApplicationApiApplicationTests {
 
 	@Autowired
 	private JobApplicationRepository repository;
+
+	@BeforeEach
+	void setUp() {
+		repository.deleteAll();
+	}
 
 	@Test
 	void contextLoads() {
@@ -170,6 +176,41 @@ class JobApplicationApiApplicationTests {
 	}
 
 	@Test
+	void updateApplication_whenInvalid_shouldReturn400() throws Exception {
+
+		JobApplication application = new JobApplication(
+			null,
+			"Test Company",
+			"Test Position",
+			"Applied"
+		);
+
+		JobApplication savedApplication = repository.save(application);
+
+		String json = """
+				{
+					"company": "",
+					"position": "Updated Position",
+					"status": "Interviewing"
+				}
+				""";
+
+		mockMvc.perform(
+			put("/applications/" + savedApplication.getId())
+			.contentType(MediaType.APPLICATION_JSON)
+			.content(json)
+		)
+		.andDo(print())
+		.andExpect(status().isBadRequest());
+
+		JobApplication unchanged = repository.findById(savedApplication.getId()).orElseThrow();
+		
+		assertEquals("Test Company", unchanged.getCompany());
+		assertEquals("Test Position", unchanged.getPosition());
+		assertEquals("Applied", unchanged.getStatus());
+	}
+
+	@Test
 	void deleteApplication_shouldReturn204() throws Exception {
 
 		JobApplication application = 
@@ -199,5 +240,41 @@ class JobApplicationApiApplicationTests {
 		)
 		.andDo(print())
 		.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void getApplications_shouldReturnListOfApplications() throws Exception {
+
+		JobApplication application1 = 
+			new JobApplication(
+				null,
+				"Company 1",
+				"Position 1",
+				"Applied"
+			);
+
+		JobApplication application2 = 
+			new JobApplication(
+				null,
+				"Company 2",
+				"Position 2",
+				"Interviewing"
+			);
+
+		repository.save(application1);
+		repository.save(application2);
+
+		mockMvc.perform(
+			get("/applications")
+		)
+		.andDo(print())
+		.andExpect(status().isOk())
+		.andExpect(jsonPath("$.length()").value(2))
+		.andExpect(jsonPath("$[0].company").value("Company 1"))
+		.andExpect(jsonPath("$[0].position").value("Position 1"))
+		.andExpect(jsonPath("$[0].status").value("Applied"))
+		.andExpect(jsonPath("$[1].company").value("Company 2"))
+		.andExpect(jsonPath("$[1].position").value("Position 2"))
+		.andExpect(jsonPath("$[1].status").value("Interviewing"));
 	}
 }
