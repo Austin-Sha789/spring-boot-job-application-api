@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import com.austin.jobtracker.exception.JobApplicationNotFoundException;
 import com.austin.jobtracker.model.JobApplication;
 import com.austin.jobtracker.repository.JobApplicationRepository;
 
@@ -25,19 +26,15 @@ public class JobApplicationService {
     }
 
     public JobApplication getApplicationById(Integer id) {
-        return repository.findById(id).orElse(null);
+        return repository.findById(id)
+                    .orElseThrow(() -> new JobApplicationNotFoundException(id));
     }
 
     public JobApplication updateApplication(
         Integer id,
         JobApplication updatedApplication) {
             
-            JobApplication existingApplication =
-                repository.findById(id).orElse(null);
-
-            if (existingApplication == null) {
-                return null;
-            }
+            JobApplication existingApplication = getApplicationById(id);
 
             existingApplication.setCompany(updatedApplication.getCompany());
             existingApplication.setPosition(updatedApplication.getPosition());
@@ -46,12 +43,8 @@ public class JobApplicationService {
             return repository.save(existingApplication);
         }
 
-    public boolean deleteApplication(Integer id) {
-        if (!repository.existsById(id)) {
-            return false;
-        }
-
+    public void deleteApplication(Integer id) {
+        getApplicationById(id);
         repository.deleteById(id);
-        return true;
     }
 }

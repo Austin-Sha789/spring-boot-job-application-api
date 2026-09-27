@@ -44,9 +44,6 @@ public class ApplicationController {
 
         JobApplication application = service.getApplicationById(id);
 
-        if (application == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(application);
     }
 
@@ -57,21 +54,13 @@ public class ApplicationController {
 
         JobApplication updated = service.updateApplication(id, application);
 
-        if (updated == null) {
-            return ResponseEntity.notFound().build();
-        }
-
         return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/applications/{id}")
     public ResponseEntity<Void> deleteApplication(@PathVariable Integer id) {
-        boolean deleted = service.deleteApplication(id);
-
-        if (!deleted) {
-            return ResponseEntity.notFound().build();
-        }
-
+        service.deleteApplication(id);
+        
         return ResponseEntity.noContent().build();
     }
 }

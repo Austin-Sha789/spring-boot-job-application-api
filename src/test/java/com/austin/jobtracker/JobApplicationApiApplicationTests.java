@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
@@ -116,7 +117,8 @@ class JobApplicationApiApplicationTests {
 			get("/applications/999999")
 		)
 		.andDo(print())
-		.andExpect(status().isNotFound());
+		.andExpect(status().isNotFound())
+		.andExpect(content().string("Job application not found with id: 999999"));
 	}
 
 	@Test
@@ -172,7 +174,8 @@ class JobApplicationApiApplicationTests {
 				.content(json)
 		)
 		.andDo(print())
-		.andExpect(status().isNotFound());
+		.andExpect(status().isNotFound())
+		.andExpect(content().string("Job application not found with id: 999999"));
 	}
 
 	@Test
@@ -239,7 +242,8 @@ class JobApplicationApiApplicationTests {
 			delete("/applications/999999")
 		)
 		.andDo(print())
-		.andExpect(status().isNotFound());
+		.andExpect(status().isNotFound())
+		.andExpect(content().string("Job application not found with id: 999999"));
 	}
 
 	@Test
