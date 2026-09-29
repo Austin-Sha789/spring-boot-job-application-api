@@ -5,5 +5,4 @@ public class JobApplicationNotFoundException extends RuntimeException{
         super("Job application not found with id: " + id);
     }
 
-
 }

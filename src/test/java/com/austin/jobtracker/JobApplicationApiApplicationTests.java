@@ -281,4 +281,143 @@ class JobApplicationApiApplicationTests {
 		.andExpect(jsonPath("$[1].position").value("Position 2"))
 		.andExpect(jsonPath("$[1].status").value("Interviewing"));
 	}
+
+	@Test
+	void getApplicationsByCompany_shouldReturnListOfApplicationsWithCompany() throws Exception {
+
+		JobApplication application1 = 
+			new JobApplication(
+				null,
+				"Company 1",
+				"Position 1",
+				"Applied"
+			);
+
+		JobApplication application2 = 
+			new JobApplication(
+				null,
+				"Company 2",
+				"Position 2",
+				"Interviewing"
+			);
+
+		JobApplication application3 = 
+			new JobApplication(
+				null,
+				"Company 1",
+				"Position 3",
+				"Interviewing"
+			);
+
+		repository.save(application1);
+		repository.save(application2);
+		repository.save(application3);
+
+		mockMvc.perform(
+			get("/applications")
+    			.param("company", "Company 1")
+		)
+		.andDo(print())
+		.andExpect(status().isOk())
+		.andExpect(jsonPath("$.length()").value(2))
+		.andExpect(jsonPath("$[0].company").value("Company 1"))
+		.andExpect(jsonPath("$[0].position").value("Position 1"))
+		.andExpect(jsonPath("$[0].status").value("Applied"))
+		.andExpect(jsonPath("$[1].company").value("Company 1"))
+		.andExpect(jsonPath("$[1].position").value("Position 3"))
+		.andExpect(jsonPath("$[1].status").value("Interviewing"));
+	}
+
+	@Test
+	void getApplicationsByStatus_shouldReturnListOfApplicationsWithStatus() throws Exception {
+
+		JobApplication application1 = 
+			new JobApplication(
+				null,
+				"Company 1",
+				"Position 1",
+				"Applied"
+			);
+
+		JobApplication application2 = 
+			new JobApplication(
+				null,
+				"Company 2",
+				"Position 2",
+				"Interviewing"
+			);
+
+		JobApplication application3 = 
+			new JobApplication(
+				null,
+				"Company 1",
+				"Position 3",
+				"Interviewing"
+			);
+
+		repository.save(application1);
+		repository.save(application2);
+		repository.save(application3);
+
+		mockMvc.perform(
+			get("/applications?status=Interviewing")
+		)
+		.andDo(print())
+		.andExpect(status().isOk())
+		.andExpect(jsonPath("$.length()").value(2))
+		.andExpect(jsonPath("$[0].company").value("Company 2"))
+		.andExpect(jsonPath("$[0].position").value("Position 2"))
+		.andExpect(jsonPath("$[0].status").value("Interviewing"))
+		.andExpect(jsonPath("$[1].company").value("Company 1"))
+		.andExpect(jsonPath("$[1].position").value("Position 3"))
+		.andExpect(jsonPath("$[1].status").value("Interviewing"));
+	}
+
+
+	@Test
+	void getApplicationsByCompanyAndStatus_shouldReturnListOfApplicationsWithBothCompanyAndStatus() throws Exception {
+
+		JobApplication application1 = 
+			new JobApplication(
+				null,
+				"Company 1",
+				"Position 1",
+				"Applied"
+			);
+
+		JobApplication application2 = 
+			new JobApplication(
+				null,
+				"Company 2",
+				"Position 2",
+				"Interviewing"
+			);
+
+		JobApplication application3 = 
+			new JobApplication(
+				null,
+				"Company 1",
+				"Position 3",
+				"Applied"
+			);
+
+		repository.save(application1);
+		repository.save(application2);
+		repository.save(application3);
+
+		mockMvc.perform(
+			get("/applications")
+				.param("company", "Company 1")
+				.param("status", "Applied")
+		)
+		.andDo(print())
+		.andExpect(status().isOk())
+		.andExpect(jsonPath("$.length()").value(2))
+		.andExpect(jsonPath("$[0].company").value("Company 1"))
+		.andExpect(jsonPath("$[0].position").value("Position 1"))
+		.andExpect(jsonPath("$[0].status").value("Applied"))
+		.andExpect(jsonPath("$[1].company").value("Company 1"))
+		.andExpect(jsonPath("$[1].position").value("Position 3"))
+		.andExpect(jsonPath("$[1].status").value("Applied"));
+	}
 }

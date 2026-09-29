@@ -17,7 +17,19 @@ public class JobApplicationService {
         this.repository = repository;
     }
 
-    public List<JobApplication> getApplications() {
+    public List<JobApplication> getApplications(String company, String status) {
+        
+        boolean hasCompany = company != null && !company.isBlank();
+        boolean hasStatus = status != null && !status.isBlank();
+
+        if (hasCompany && hasStatus){
+            return repository.findByCompanyIgnoreCaseAndStatusIgnoreCase(company, status);
+        } else if (hasStatus) {
+            return repository.findByStatusIgnoreCase(status);
+        } else if (hasCompany) {
+            return repository.findByCompanyIgnoreCase(company);
+        }
+
         return repository.findAll();
     }
 

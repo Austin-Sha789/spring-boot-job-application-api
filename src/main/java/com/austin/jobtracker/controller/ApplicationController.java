@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,8 +28,10 @@ public class ApplicationController {
     }
 
     @GetMapping("/applications")
-    public List<JobApplication> getApplications() {
-        return service.getApplications();
+    public List<JobApplication> getApplications(
+            @RequestParam(required = false) String company,
+            @RequestParam(required = false) String status) {
+        return service.getApplications(company, status);
     }
 
     @PostMapping("/applications")
@@ -60,7 +63,7 @@ public class ApplicationController {
     @DeleteMapping("/applications/{id}")
     public ResponseEntity<Void> deleteApplication(@PathVariable Integer id) {
         service.deleteApplication(id);
-        
+
         return ResponseEntity.noContent().build();
     }
 }
