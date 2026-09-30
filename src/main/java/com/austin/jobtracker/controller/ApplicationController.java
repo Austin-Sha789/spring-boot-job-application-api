@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
 
 @RestController
 public class ApplicationController {
@@ -28,10 +29,13 @@ public class ApplicationController {
     }
 
     @GetMapping("/applications")
-    public List<JobApplication> getApplications(
+    public Page<JobApplication> getApplications(
             @RequestParam(required = false) String company,
-            @RequestParam(required = false) String status) {
-        return service.getApplications(company, status);
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+        ) {
+        return service.getApplications(company, status, page, size);
     }
 
     @PostMapping("/applications")

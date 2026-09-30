@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
@@ -247,7 +248,7 @@ class JobApplicationApiApplicationTests {
 	}
 
 	@Test
-	void getApplications_shouldReturnListOfApplications() throws Exception {
+	void getApplications_shouldReturnPageOfApplications() throws Exception {
 
 		JobApplication application1 = 
 			new JobApplication(
@@ -272,14 +273,21 @@ class JobApplicationApiApplicationTests {
 			get("/applications")
 		)
 		.andDo(print())
-		.andExpect(status().isOk())
-		.andExpect(jsonPath("$.length()").value(2))
-		.andExpect(jsonPath("$[0].company").value("Company 1"))
-		.andExpect(jsonPath("$[0].position").value("Position 1"))
-		.andExpect(jsonPath("$[0].status").value("Applied"))
-		.andExpect(jsonPath("$[1].company").value("Company 2"))
-		.andExpect(jsonPath("$[1].position").value("Position 2"))
-		.andExpect(jsonPath("$[1].status").value("Interviewing"));
+		.andExpect(jsonPath("$.content.length()").value(2))
+		.andExpect(jsonPath("$.content[0].company").value("Company 1"))
+		.andExpect(jsonPath("$.content[0].position").value("Position 1"))
+		.andExpect(jsonPath("$.content[0].status").value("Applied"))
+		.andExpect(jsonPath("$.content[1].company").value("Company 2"))
+		.andExpect(jsonPath("$.content[1].position").value("Position 2"))
+		.andExpect(jsonPath("$.content[1].status").value("Interviewing"))
+
+		.andExpect(jsonPath("$.totalElements").value(2))
+		.andExpect(jsonPath("$.totalPages").value(1))
+		.andExpect(jsonPath("$.size").value(10))
+		.andExpect(jsonPath("$.number").value(0))
+		.andExpect(jsonPath("$.first").value(true))
+		.andExpect(jsonPath("$.last").value(true));
+
 	}
 
 	@Test
@@ -319,13 +327,21 @@ class JobApplicationApiApplicationTests {
 		)
 		.andDo(print())
 		.andExpect(status().isOk())
-		.andExpect(jsonPath("$.length()").value(2))
-		.andExpect(jsonPath("$[0].company").value("Company 1"))
-		.andExpect(jsonPath("$[0].position").value("Position 1"))
-		.andExpect(jsonPath("$[0].status").value("Applied"))
-		.andExpect(jsonPath("$[1].company").value("Company 1"))
-		.andExpect(jsonPath("$[1].position").value("Position 3"))
-		.andExpect(jsonPath("$[1].status").value("Interviewing"));
+		.andExpect(jsonPath("$.content.length()").value(2))
+		.andExpect(jsonPath("$.content[0].company").value("Company 1"))
+		.andExpect(jsonPath("$.content[0].position").value("Position 1"))
+		.andExpect(jsonPath("$.content[0].status").value("Applied"))
+		.andExpect(jsonPath("$.content[1].company").value("Company 1"))
+		.andExpect(jsonPath("$.content[1].position").value("Position 3"))
+		.andExpect(jsonPath("$.content[1].status").value("Interviewing"))
+
+		.andExpect(jsonPath("$.totalElements").value(2))
+		.andExpect(jsonPath("$.totalPages").value(1))
+		.andExpect(jsonPath("$.size").value(10))
+		.andExpect(jsonPath("$.number").value(0))
+		.andExpect(jsonPath("$.first").value(true))
+		.andExpect(jsonPath("$.last").value(true));
+
 	}
 
 	@Test
@@ -360,17 +376,26 @@ class JobApplicationApiApplicationTests {
 		repository.save(application3);
 
 		mockMvc.perform(
-			get("/applications?status=Interviewing")
+			get("/applications")
+    			.param("status", "Interviewing")
 		)
 		.andDo(print())
 		.andExpect(status().isOk())
-		.andExpect(jsonPath("$.length()").value(2))
-		.andExpect(jsonPath("$[0].company").value("Company 2"))
-		.andExpect(jsonPath("$[0].position").value("Position 2"))
-		.andExpect(jsonPath("$[0].status").value("Interviewing"))
-		.andExpect(jsonPath("$[1].company").value("Company 1"))
-		.andExpect(jsonPath("$[1].position").value("Position 3"))
-		.andExpect(jsonPath("$[1].status").value("Interviewing"));
+		.andExpect(jsonPath("$.content.length()").value(2))
+		.andExpect(jsonPath("$.content[0].company").value("Company 2"))
+		.andExpect(jsonPath("$.content[0].position").value("Position 2"))
+		.andExpect(jsonPath("$.content[0].status").value("Interviewing"))
+		.andExpect(jsonPath("$.content[1].company").value("Company 1"))
+		.andExpect(jsonPath("$.content[1].position").value("Position 3"))
+		.andExpect(jsonPath("$.content[1].status").value("Interviewing"))
+
+		.andExpect(jsonPath("$.totalElements").value(2))
+		.andExpect(jsonPath("$.totalPages").value(1))
+		.andExpect(jsonPath("$.size").value(10))
+		.andExpect(jsonPath("$.number").value(0))
+		.andExpect(jsonPath("$.first").value(true))
+		.andExpect(jsonPath("$.last").value(true));
+
 	}
 
 
@@ -412,12 +437,121 @@ class JobApplicationApiApplicationTests {
 		)
 		.andDo(print())
 		.andExpect(status().isOk())
-		.andExpect(jsonPath("$.length()").value(2))
-		.andExpect(jsonPath("$[0].company").value("Company 1"))
-		.andExpect(jsonPath("$[0].position").value("Position 1"))
-		.andExpect(jsonPath("$[0].status").value("Applied"))
-		.andExpect(jsonPath("$[1].company").value("Company 1"))
-		.andExpect(jsonPath("$[1].position").value("Position 3"))
-		.andExpect(jsonPath("$[1].status").value("Applied"));
+		.andExpect(jsonPath("$.content.length()").value(2))
+		.andExpect(jsonPath("$.content[0].company").value("Company 1"))
+		.andExpect(jsonPath("$.content[0].position").value("Position 1"))
+		.andExpect(jsonPath("$.content[0].status").value("Applied"))
+		.andExpect(jsonPath("$.content[1].company").value("Company 1"))
+		.andExpect(jsonPath("$.content[1].position").value("Position 3"))
+		.andExpect(jsonPath("$.content[1].status").value("Applied"))
+
+		.andExpect(jsonPath("$.totalElements").value(2))
+		.andExpect(jsonPath("$.totalPages").value(1))
+		.andExpect(jsonPath("$.size").value(10))
+		.andExpect(jsonPath("$.number").value(0))
+		.andExpect(jsonPath("$.first").value(true))
+		.andExpect(jsonPath("$.last").value(true));
+
+	}
+
+	@Test
+	void getApplicationsWithPageAndSize_Page1() throws Exception {
+
+		JobApplication application1 = 
+			new JobApplication(
+				null,
+				"Company 1",
+				"Position 1",
+				"Applied"
+			);
+
+		JobApplication application2 = 
+			new JobApplication(
+				null,
+				"Company 2",
+				"Position 2",
+				"Interviewing"
+			);
+
+		JobApplication application3 = 
+			new JobApplication(
+				null,
+				"Company 1",
+				"Position 3",
+				"Applied"
+			);
+
+		repository.save(application1);
+		repository.save(application2);
+		repository.save(application3);
+		
+		mockMvc.perform(
+			get("/applications?page=0&size=2")
+		)
+		.andDo(print())
+		.andExpect(status().isOk())
+		.andExpect(jsonPath("$.content.length()").value(2))
+		.andExpect(jsonPath("$.content[0].company").value("Company 1"))
+		.andExpect(jsonPath("$.content[0].position").value("Position 1"))
+		.andExpect(jsonPath("$.content[0].status").value("Applied"))
+		.andExpect(jsonPath("$.content[1].company").value("Company 2"))
+		.andExpect(jsonPath("$.content[1].position").value("Position 2"))
+		.andExpect(jsonPath("$.content[1].status").value("Interviewing"))
+
+		.andExpect(jsonPath("$.totalElements").value(3))
+		.andExpect(jsonPath("$.totalPages").value(2))
+		.andExpect(jsonPath("$.size").value(2))
+		.andExpect(jsonPath("$.number").value(0))
+		.andExpect(jsonPath("$.first").value(true))
+		.andExpect(jsonPath("$.last").value(false));
+	}
+
+	@Test
+	void getApplicationsWithPageAndSize_Page2() throws Exception {
+
+		JobApplication application1 = 
+			new JobApplication(
+				null,
+				"Company 1",
+				"Position 1",
+				"Applied"
+			);
+
+		JobApplication application2 = 
+			new JobApplication(
+				null,
+				"Company 2",
+				"Position 2",
+				"Interviewing"
+			);
+
+		JobApplication application3 = 
+			new JobApplication(
+				null,
+				"Company 1",
+				"Position 3",
+				"Applied"
+			);
+
+		repository.save(application1);
+		repository.save(application2);
+		repository.save(application3);
+		
+		mockMvc.perform(
+			get("/applications?page=1&size=2")
+		)
+		.andDo(print())
+		.andExpect(status().isOk())
+		.andExpect(jsonPath("$.content.length()").value(1))
+		.andExpect(jsonPath("$.content[0].company").value("Company 1"))
+		.andExpect(jsonPath("$.content[0].position").value("Position 3"))
+		.andExpect(jsonPath("$.content[0].status").value("Applied"))
+
+		.andExpect(jsonPath("$.totalElements").value(3))
+		.andExpect(jsonPath("$.totalPages").value(2))
+		.andExpect(jsonPath("$.size").value(2))
+		.andExpect(jsonPath("$.number").value(1))
+		.andExpect(jsonPath("$.first").value(false))
+		.andExpect(jsonPath("$.last").value(true));
 	}
 }

@@ -4,13 +4,14 @@ import com.austin.jobtracker.model.JobApplication;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface JobApplicationRepository
     extends JpaRepository<JobApplication, Integer>{
-        List<JobApplication> findByCompanyIgnoreCase(String company);
+        Page<JobApplication> findByCompanyIgnoreCase(String company, Pageable pageable);
 
-        List<JobApplication> findByStatusIgnoreCase(String status);
+        Page<JobApplication> findByStatusIgnoreCase(String status, Pageable pageable);
 
-        List<JobApplication> findByCompanyIgnoreCaseAndStatusIgnoreCase(String company, String status);
+        Page<JobApplication> findByCompanyIgnoreCaseAndStatusIgnoreCase(String company, String status, Pageable pageable);
 }
