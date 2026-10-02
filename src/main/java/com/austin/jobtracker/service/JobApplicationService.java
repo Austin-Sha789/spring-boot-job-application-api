@@ -10,9 +10,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class JobApplicationService {
     
+    private static final Logger logger = 
+            LoggerFactory.getLogger(JobApplicationService.class);
+
     private final JobApplicationRepository repository;
 
     public JobApplicationService(JobApplicationRepository repository){
@@ -26,6 +32,14 @@ public class JobApplicationService {
             int size
         ) {
         
+        logger.info(
+            "Fetching applications with company={}, status={}, page={}, size={}",
+            company,
+            status,
+            page,
+            size
+        );
+
         Pageable pageable = PageRequest.of(page, size);
 
         boolean hasCompany = company != null && !company.isBlank();
@@ -43,12 +57,24 @@ public class JobApplicationService {
     }
 
     public JobApplication createApplication(JobApplication application) {
-        return repository.save(application);
+        JobApplication created = repository.save(application);
+
+        logger.info(
+            "Created job application with id={}, company={}, position{}",
+            created.getId(),
+            created.getCompany(),
+            created.getPosition()
+        );
+
+        return created;
     }
 
     public JobApplication getApplicationById(Integer id) {
         return repository.findById(id)
-                    .orElseThrow(() -> new JobApplicationNotFoundException(id));
+                    .orElseThrow(() -> {
+                        logger.warn("Job application not found with id={}", id);    
+                        return new JobApplicationNotFoundException(id);
+                    });
     }
 
     public JobApplication updateApplication(
@@ -61,11 +87,23 @@ public class JobApplicationService {
             existingApplication.setPosition(updatedApplication.getPosition());
             existingApplication.setStatus(updatedApplication.getStatus());
 
-            return repository.save(existingApplication);
+            JobApplication updated = repository.save(existingApplication);
+
+            logger.info(
+                "Updated job application with id={}",
+                updated.getId()
+            );
+                
+            return updated;
         }
 
     public void deleteApplication(Integer id) {
         getApplicationById(id);
         repository.deleteById(id);
+
+        logger.info(
+            "Deleted job application with id={}",
+            id
+        );
     }
 }
